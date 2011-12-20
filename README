@@ -25,7 +25,7 @@ point in time.
 When running this test suite w/ Accumulo we also run a script called the
 Agitator that randomly and continuously kills server processes.  We found many
 data loss bugs in Accumulo by doing this.  This test suite can also help find
-bugs that impact uptime and stability when run for day or weeks.  
+bugs that impact uptime and stability when run for days or weeks.  
 
 This test suite consist of a few Java programs, a little helper script to run
 the java programs, and a maven script to build it.  To build the code, you may
@@ -54,6 +54,12 @@ You can just run "./goraci.sh Generator", below is an example.
   $ ./goraci.sh Generator
   Usage : Generator <num mappers> <num nodes>
 
+For Gora to work, it needs a gora.properties file on the classpath and a
+mapping file on the classpath.  You can edit the ones in src/main/resources and
+build the goraci.ar with those.  Or remove those and put them on the classpath
+through some other means.
+
 This test suite does not do everything that the Accumulo test suite does,
-mainly it does not collect statistics and generate reports.
+mainly it does not collect statistics and generate reports.  The reports
+are useful for assesing performance.
 
