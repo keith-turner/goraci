@@ -36,7 +36,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 /**
- * 
+ * A stand alone program that follows a linked list created by {@link Generator} and prints timing info.
  */
 public class Walker extends Configured implements Tool {
   

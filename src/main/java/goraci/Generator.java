@@ -46,7 +46,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 /**
- * 
+ * A Map only job that generates random linked list and stores them using Gora.
  */
 public class Generator extends Configured implements Tool {
   

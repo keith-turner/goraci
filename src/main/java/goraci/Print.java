@@ -35,7 +35,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 /**
- * 
+ * A stand alone program that prints out portions of a list created by {@link Generator}
  */
 public class Print extends Configured implements Tool {
   
