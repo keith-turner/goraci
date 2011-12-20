@@ -1,0 +1,59 @@
+Accumulo has a simple test suite that verifies that data is not lost at scale.
+This test suite is called continuous ingest.  This test runs many ingest
+clients that continually create linked lists containing 25 million nodes. At
+some point the clients are stopped and a map reduce job is run to ensure no
+linked list has a hole. A hole indicates data was lost.  
+
+This project is a version of the test suite written using Gora.  Theoretically
+it could run against other column stores.  Currently I have only tested it at
+scale using Accumulo.
+
+Below is rough sketch of how data is written.  For specific details look at the
+Generator code.
+
+  1 Write out 1 million nodes 
+  2 Flush 
+  3 Write out 1 million that reference previous million 
+  4 If this is the 25th set of 1 million nodes, then update 1st set of million
+    to point to last 
+  5 goto 1
+
+The key is that nodes only reference flushed nodes.  Therefore a node should
+never reference a missing node, even if the ingest client is killed at any
+point in time.
+
+When running this test suite w/ Accumulo we also run a script called the
+Agitator that randomly and continuously kills server processes.  We found many
+data loss bugs in Accumulo by doing this.  This test suite can also help find
+bugs that impact uptime and stability when run for day or weeks.  
+
+This test suite consist of a few Java programs, a little helper script to run
+the java programs, and a maven script to build it.  To build the code, you may
+need to edit the maven script to point to the gora data store that you want to
+use.  Or just use the maven script to build this java code, and copy whatever
+dependencies you need into lib.  To compile, do "mvn compile package".  The
+current maven build script depends on an unreleased version of Accumulo and an
+un released version of gora-accumulo.  Both of these can be downloaded and
+installed in your local maven repo using mvn install.
+
+Below is a description of the Java programs
+
+  * goraci.Generator - A map only job that generates data.
+  * goraci.Verify    - A map reduce job that looks for holes.  Look at the
+                       counts after running.  REFERENCED and UNREFERENCED are 
+                       ok, any UNDEFINED counts are bad. Do not run at the 
+                       same time as the Generator.
+  * goraci.Walker    - A standalong program that start following a linked  list 
+                       and emits timing info.  
+  * goraci.Print     - A standalone program that prints nodes in the linked list
+
+goraci.sh is a helper script that you can use to run the above programs.  It
+assumes all needed jars are in the lib dir.  It does not need the package name.
+You can just run "./goraci.sh Generator", below is an example.
+
+  $ ./goraci.sh Generator
+  Usage : Generator <num mappers> <num nodes>
+
+This test suite does not do everything that the Accumulo test suite does,
+mainly it does not collect statistics and generate reports.
+
