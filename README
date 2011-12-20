@@ -67,3 +67,24 @@ This test suite does not do everything that the Accumulo test suite does,
 mainly it does not collect statistics and generate reports.  The reports
 are useful for assesing performance.
 
+Below shows running a test of the test.  Ingest one linked list, deleted a node
+in it, ensure the verifaction map reduce job notices that the node is missing.
+Not all output is shown, just the important parts.
+
+  $ ./goraci.sh Generator  1 25000000
+  $ ./goraci.sh Print -s 2000000000000000 -l 1
+  2000001f65dbd238:30350f9ae6f6e8f7:000004265852:ef09f9dd-75b1-4c16-9f14-0fa84f3029b6
+  $ ./goraci.sh Print -s 30350f9ae6f6e8f7 -l 1
+  30350f9ae6f6e8f7:4867fe03de6ea6c8:000003265852:ef09f9dd-75b1-4c16-9f14-0fa84f3029b6
+  $ ./goraci.sh Delete 30350f9ae6f6e8f7
+  Delete returned true
+  $ ./goraci.sh Verify gci_verify_1 2 
+  11/12/20 17:12:31 INFO mapred.JobClient:   goraci.Verify$Counts
+  11/12/20 17:12:31 INFO mapred.JobClient:     UNDEFINED=1
+  11/12/20 17:12:31 INFO mapred.JobClient:     REFERENCED=24999998
+  11/12/20 17:12:31 INFO mapred.JobClient:     UNREFERENCED=1
+  $ hadoop fs -cat gci_verify_1/part\*
+  30350f9ae6f6e8f7	2000001f65dbd238
+
+The map reduce job found the one undefined node and gave the node that
+referenced it.
