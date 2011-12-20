@@ -223,7 +223,6 @@ public class Generator extends Configured implements Tool {
         CINode node = store.newPersistent();
         node.setPrev(current[i]);
         store.put(first[i], node);
-        System.out.printf("Set prev %016x %016x\n", first[i], current[i]);
       }
       
       store.flush();
