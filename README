@@ -4,6 +4,10 @@ clients that continually create linked lists containing 25 million nodes. At
 some point the clients are stopped and a map reduce job is run to ensure no
 linked list has a hole. A hole indicates data was lost.  
 
+The nodes in the linked list are random.  This causes each linked list to
+spread across the table.  Therefore if one part of a table loses data, then it
+will be detected by references in another part of the table.
+
 This project is a version of the test suite written using Gora.  Theoretically
 it could run against other column stores.  Currently I have only tested it at
 scale using Accumulo.
