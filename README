@@ -50,6 +50,7 @@ Below is a description of the Java programs
   * goraci.Walker    - A standalong program that start following a linked  list 
                        and emits timing info.  
   * goraci.Print     - A standalone program that prints nodes in the linked list
+  * goraci.Delete    - A standalone program that deletes a single node
 
 goraci.sh is a helper script that you can use to run the above programs.  It
 assumes all needed jars are in the lib dir.  It does not need the package name.
