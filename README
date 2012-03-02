@@ -1,4 +1,13 @@
-Accumulo has a simple test suite that verifies that data is not lost at scale.
+=================================
+=				=
+= GORACI README			=
+= @author Keith Turner		=
+=================================
+
+BACKGROUND
+------------
+
+Apache Accumulo [0] has a simple test suite that verifies that data is not lost at scale.
 This test suite is called continuous ingest.  This test runs many ingest
 clients that continually create linked lists containing 25 million nodes. At
 some point the clients are stopped and a map reduce job is run to ensure no
@@ -8,12 +17,15 @@ The nodes in the linked list are random.  This causes each linked list to
 spread across the table.  Therefore if one part of a table loses data, then it
 will be detected by references in another part of the table.
 
-This project is a version of the test suite written using Gora.  Theoretically
-it could run against other column stores.  Currently I have only tested it at
-scale using Accumulo.
+This project is a version of the test suite written using Apache Gora [1].  Theoretically
+it could run against other column stores, however currently it has only been
+tested at scale using Apache Accumulo.
+
+THE ANATOMY OF GORACI TESTS
+----------------------------
 
 Below is rough sketch of how data is written.  For specific details look at the
-Generator code.
+Generator code (src/main/java/goraci/Generator.java)
 
   1 Write out 1 million nodes 
   2 Flush 
@@ -26,19 +38,38 @@ The key is that nodes only reference flushed nodes.  Therefore a node should
 never reference a missing node, even if the ingest client is killed at any
 point in time.
 
-When running this test suite w/ Accumulo we also run a script called the
-Agitator that randomly and continuously kills server processes.  We found many
-data loss bugs in Accumulo by doing this.  This test suite can also help find
-bugs that impact uptime and stability when run for days or weeks.  
+When running this test suite w/ Accumulo there is a script running in parallel
+called the Adgitator that randomly and continuously kills server processes.  
+The outcome was that many data loss bugs were found in Accumulo by doing this. 
+This test suite can also help find bugs that impact uptime and stability when 
+run for days or weeks.  
 
-This test suite consist of a few Java programs, a little helper script to run
-the java programs, and a maven script to build it.  To build the code, you may
-need to edit the maven script to point to the gora data store that you want to
-use.  Or just use the maven script to build this java code, and copy whatever
-dependencies you need into lib.  To compile, do "mvn compile package".  The
-current maven build script depends on an unreleased version of Accumulo and an
+This test suite consists the following 
+- a few Java programs 
+- a little helper script to run the java programs
+- a maven script to build it.  
+
+BUILDING GORACI
+---------------
+
+To build the code, you may need to edit the maven script to point to the gora 
+datastore that you want to use. This will require you to edit commented out
+dependencies, which will reflect which datastore you wish to test against.
+Alternatively just use the maven script to build the java code, and copy whatever
+dependencies you need into lib.  
+To compile, do 
+
+$mvn compile package  
+
+The current maven build script depends on an unreleased version of Accumulo and an
 un released version of gora-accumulo.  Both of these can be downloaded and
 installed in your local maven repo using mvn install.
+
+Once the gora goraci-${version}-SNAPSHOT.jar has been built copy it to your $HADDOP_HOME/lib
+directory.
+
+JAVA CLASS DESCRIPTION
+-----------------
 
 Below is a description of the Java programs
 
@@ -60,9 +91,13 @@ You can just run "./goraci.sh Generator", below is an example.
   Usage : Generator <num mappers> <num nodes>
 
 For Gora to work, it needs a gora.properties file on the classpath and a
-mapping file on the classpath.  You can edit the ones in src/main/resources and
-build the goraci.ar with those.  Or remove those and put them on the classpath
-through some other means.
+mapping file on the classpath, the contents of both are datastore specific, more 
+details can be found here [2]. You can edit the ones in src/main/resources and
+build the goraci-${version}-SNAPSHOT.jar with those. Alternatively remove those 
+and put them on the classpath through some other means.
+
+CONCLUSIONS
+------------
 
 This test suite does not do everything that the Accumulo test suite does,
 mainly it does not collect statistics and generate reports.  The reports
@@ -89,3 +124,7 @@ Not all output is shown, just the important parts.
 
 The map reduce job found the one undefined node and gave the node that
 referenced it.
+
+[0] http://incubator.apache.org/accumulo
+[1] http://gora.apache.org
+[2] http://gora.apache.org/docs/current/gora-conf.html
