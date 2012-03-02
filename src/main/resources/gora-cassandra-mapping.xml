@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gora-orm>
+  <class name="goraci.generated.CINode" keyClass="java.lang.Long" keyspace="ci">
+    <field name="prev" path=""/>
+    <field name="client" path=""/>
+    <field name="count" path=""/>
+  </class>
+</gora-orm>
+<!-- N.B. incorrect mapping -->

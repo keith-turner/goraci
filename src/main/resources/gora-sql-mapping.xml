@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gora-orm>
+  <class name="goraci.generated.CINode" keyClass="java.lang.Long" table="ci">
+    <primarykey column="" length=""/>
+    <field name="prev" column="" length=""/>
+    <field name="client" column=""/>
+    <field name="count" column="" jdbc-type="VARCHAR_IGNORECASE" length=""/> <!-- jdbc-type is HSQLDB specific for testing -->
+  </class>
+</gora-orm>
+<!-- N.B. incorrect mapping -->
+
