@@ -137,6 +137,8 @@ public class Verify extends Configured implements Tool {
 
     GoraMapper.initMapperJob(job, query, store, LongWritable.class, VLongWritable.class, VerifyMapper.class, true);
 
+    job.getConfiguration().setBoolean("mapred.map.tasks.speculative.execution", false);
+    
     job.setReducerClass(VerifyReducer.class);
     job.setOutputFormatClass(TextOutputFormat.class);
     TextOutputFormat.setOutputPath(job, new Path(outputDir));
