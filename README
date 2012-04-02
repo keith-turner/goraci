@@ -123,6 +123,6 @@ Not all output is shown, just the important parts.
 The map reduce job found the one undefined node and gave the node that
 referenced it.
 
-[0] http://incubator.apache.org/accumulo
+[0] http://accumulo.apache.org
 [1] http://gora.apache.org
 [2] http://gora.apache.org/docs/current/gora-conf.html
