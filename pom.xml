@@ -99,13 +99,13 @@
 		<dependency>
 			<groupId>org.apache.accumulo</groupId>
 			<artifactId>accumulo-core</artifactId>
-			<version>1.4.0-incubating-SNAPSHOT</version>
+			<version>1.4.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.accumulo</groupId>
 			<artifactId>cloudtrace</artifactId>
-			<version>1.4.0-incubating-SNAPSHOT</version>
+			<version>1.4.0</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
