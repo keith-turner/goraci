@@ -66,6 +66,15 @@ The current maven build script depends on an unreleased version of Accumulo and
 an un released version of gora-accumulo.  Both of these can be downloaded and
 installed in your local maven repo using mvn install.
 
+GORA AND HADOOP
+-----------------
+
+Gora uses Avro which uses a Json library that Hadoop has an old version of.
+The two libraries  jackson-core and jackson-mapper need to be updated in
+<HADOOP_HOME>/lib and <HADOOP_HOME>/share/hadoop/lib/.  I updated these to
+jackson-core-asl-1.4.2.jar and jackson-mapper-asl-1.4.2.jar.  For details see
+HADOOP-6945 [3]. 
+
 JAVA CLASS DESCRIPTION
 -----------------
 
@@ -126,3 +135,4 @@ referenced it.
 [0] http://accumulo.apache.org
 [1] http://gora.apache.org
 [2] http://gora.apache.org/docs/current/gora-conf.html
+[3] https://issues.apache.org/jira/browse/HADOOP-6945
