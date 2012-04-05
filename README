@@ -60,7 +60,7 @@ This code currently depends on an unreleased version of Gora.  To build Gora
 
 After this you can build goraci.
 
-  git clone git@github.com:keith-turner/goraci.git
+  git clone git://github.com/keith-turner/goraci.git
   cd goraci
   mvn compile
 
