@@ -161,6 +161,19 @@ Not all output is shown, just the important parts.
 The map reduce job found the one undefined node and gave the node that
 referenced it.
 
+Below are some timing statistics for running goraci on a 10 node cluster
+generating and verifying 1 billion nodes.
+
+  Store           | Task                   | Time
+  ----------------+------------------------+---------
+  accumulo-1.4.0  | Generator 10 100000000 | 35m 22s
+  accumulo-1.4.0  | Verify /tmp/goraci1 19 |  9m 36s
+
+For the accumulo run, the table was presplit into 8 tablets using the following
+command in the accumulo shell.  This was done before the generator was started.
+
+  addsplits -t ci \x10 \x20 \x30 \x40 \x50 \x60 \x70
+
 [0] http://accumulo.apache.org
 [1] http://gora.apache.org
 [2] http://gora.apache.org/docs/current/gora-conf.html
