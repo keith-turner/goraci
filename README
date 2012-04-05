@@ -18,8 +18,7 @@ spread across the table.  Therefore if one part of a table loses data, then it
 will be detected by references in another part of the table.
 
 This project is a version of the test suite written using Apache Gora [1].
-Theoretically it could run against other column stores, however currently it
-has only been tested at scale using Apache Accumulo.
+Goraci has been tested against Accumulo and HBase.  
 
 THE ANATOMY OF GORACI TESTS
 ----------------------------
@@ -52,19 +51,35 @@ This test suite consists the following
 BUILDING GORACI
 ---------------
 
-To build the code, you may need to edit the maven script to point to the gora
-datastore that you want to use. This will require you to edit commented out
-dependencies, which will reflect which datastore you wish to test against.
-Alternatively just use the maven script to build the java code, and copy
-whatever dependencies you need into lib.  
+This code currently depends on an unreleased version of Gora.  To build Gora
+0.2 run the following commands.
 
-To compile, do 
+  svn export http://svn.apache.org/repos/asf/gora/trunk gora
+  cd gora
+  mvn install -DskipTests
 
-$mvn compile package  
+After this you can build goraci.
 
-The current maven build script depends on an unreleased version of Accumulo and
-an un released version of gora-accumulo.  Both of these can be downloaded and
-installed in your local maven repo using mvn install.
+  git clone git@github.com:keith-turner/goraci.git
+  cd goraci
+  mvn compile
+
+The maven pom file has some profiles that attempt to make it easier to run
+goraci against different gora backends by copying the jars you need into lib.
+Before packaging its important to edit gora.properties and set it correctly for
+your datastore.  To run against accumulo do the following.
+
+  vim src/main/resources/gora.properties
+  mvn package -Paccumulo-1.4
+
+To run against hbase, do the following.
+
+  vim src/main/resources/gora.properties
+  mvn package -Phbase-0.92
+
+For other backends like cassandra, you will need to copy the appropriate deps
+into lib.  Feel free to update the pom with other profiles and send me pull
+request.
 
 GORA AND HADOOP
 -----------------
@@ -74,6 +89,20 @@ The two libraries  jackson-core and jackson-mapper need to be updated in
 <HADOOP_HOME>/lib and <HADOOP_HOME>/share/hadoop/lib/.  I updated these to
 jackson-core-asl-1.4.2.jar and jackson-mapper-asl-1.4.2.jar.  For details see
 HADOOP-6945 [3]. 
+
+GORACI AND HBASE
+-----------------
+
+There are currently two issues that must be addressed to make Goraci run with
+HBase.
+
+First, inorder to make Goraci ingest quickly into HBase, the gora-hbase
+datastore code must be modified to disable autoflush.  I will provide a pointer
+to a gora patch.
+
+Second, the generator needs to be scaled back from 1,000,000 inserts at a time
+to 100,000 or it will hang for some unknown reason.  This can be accomplished
+by modifing a constant in goraci.Generator and rebuilding.
 
 JAVA CLASS DESCRIPTION
 -----------------
