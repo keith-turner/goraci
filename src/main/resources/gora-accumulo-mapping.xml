@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gora-orm>
-  <class name="goraci.generated.CINode" keyClass="java.lang.Long" table="ci" encoder="org.apache.gora.accumulo.encoders.HexEncoder">
+  <class name="goraci.generated.CINode" keyClass="java.lang.Long" table="ci">
     <field name="prev" family="meta" qualifier="prev"/>
     <field name="client" family="meta" qualifier="client"/>
     <field name="count" family="meta" qualifier="count" />
