@@ -168,6 +168,8 @@ generating and verifying 1 billion nodes.
   ----------------+------------------------+---------+--------+-------+------------
   accumulo-1.4.0  | Generator 10 100000000 | 35m 22s |    N/A |   N/A |        N/A     
   accumulo-1.4.0  | Verify /tmp/goraci1 19 |  9m 36s |      0 |     0 | 1000000000  
+  hbase-0.92.1    | Generator 10  10000000 | 17m 53s |    N/A |   N/A |        N/A     
+  hbase-0.92.1    | Verify /tmp/goraci2 40 | 33m 22s |      0 |     0 |  100000000  
 
 For the accumulo run, the table was presplit into 8 tablets using the following
 command in the accumulo shell.  This was done before the generator was started.
