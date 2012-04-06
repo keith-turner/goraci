@@ -97,9 +97,11 @@ There are currently two issues that must be addressed to make Goraci run with
 HBase.
 
 First, inorder to make Goraci ingest quickly into HBase, the gora-hbase
-datastore code must be modified to disable autoflush.  I will provide a pointer
-to a gora patch.
+datastore code must be modified to disable autoflush.  This change was made in
+the following git repo.
 
+  https://github.com/ericnewton/gora
+  
 Second, the generator needs to be scaled back from 1,000,000 inserts at a time
 to 100,000 or it will hang for some unknown reason.  This can be accomplished
 by modifing a constant in goraci.Generator and rebuilding.
@@ -161,8 +163,9 @@ Not all output is shown, just the important parts.
 The map reduce job found the one undefined node and gave the node that
 referenced it.
 
-Below are some timing statistics for running goraci on a 10 node cluster
-generating and verifying 1 billion nodes.
+Below are some timing statistics for running goraci on a 10 node cluster. For
+Accumulo 1 billion nodes were generated and verified.  For HBase 100 million
+nodes were generated and verified.
 
   Store           | Task                   | Time    | Undef  | Unref | Ref        
   ----------------+------------------------+---------+--------+-------+------------
