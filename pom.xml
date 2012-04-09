@@ -114,10 +114,9 @@
 			<version>3.3.1</version>
 			<scope>runtime</scope>
 		</dependency>
-
            </dependencies>
-
           </profile>
+          
           <profile>
            <id>hbase-0.92</id>
            <!-- this profile contains the runtime deps for hbase-0.92 -->
@@ -141,37 +140,58 @@
                     <scope>runtime</scope>
                 </dependency>
 		<dependency>
-			<groupId>org.apache.zookeeper</groupId>
-			<artifactId>zookeeper</artifactId>
-			<version>3.4.3</version>
-			<scope>runtime</scope>
+		   <groupId>org.apache.zookeeper</groupId>
+		   <artifactId>zookeeper</artifactId>
+		   <version>3.4.3</version>
+		   <scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-core</artifactId>
-			<version>0.20.205.0</version>
+		   <groupId>org.apache.hadoop</groupId>
+		   <artifactId>hadoop-core</artifactId>
+		   <version>1.0.1</version>
 		</dependency>
-
            </dependencies>
-
           </profile>
+          
           <profile>
-           <id>cassandra</id>
-           <!-- this profile contains the runtime deps for cassandra -->
-           <!-- TODO this is incomplete -->
+           <id>cassandra-1.0.2</id>
+           <!-- this profile contains the runtime deps for Cassandra 1.0.2 -->
            <dependencies>
 		<dependency>
-			<groupId>org.apache.gora</groupId>
-			<artifactId>gora-cassandra</artifactId>
-			<version>0.2-SNAPSHOT</version>
-			<scope>runtime</scope>
+		   <groupId>org.apache.gora</groupId>
+		   <artifactId>gora-cassandra</artifactId>
+		   <version>0.2-SNAPSHOT</version>
+		   <scope>runtime</scope>
+		</dependency>
+		<dependency>
+                   <groupId>org.apache.cassandra</groupId>
+                   <artifactId>cassandra-all</artifactId>
+                   <version>1.0.2</version>
+                   <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                   <groupId>org.apache.cassandra</groupId>
+                   <artifactId>cassandra-thrift</artifactId>
+                   <version>1.0.2</version>
+                   <scope>runtime</scope>
+                </dependency>
+                <dependency>
+                   <groupId>me.prettyprint</groupId>
+                   <artifactId>hector-core</artifactId>
+                   <version>1.0-1</version>
+                   <scope>runtime</scope>
+                </dependency>
+                <dependency>
+		   <groupId>org.apache.hadoop</groupId>
+		   <artifactId>hadoop-core</artifactId>
+		   <version>1.0.1</version>
 		</dependency>
            </dependencies>
 
           </profile>
           <profile>
            <id>sql</id>
-           <!-- this profile contains the runtime deps for cassandra -->
+           <!-- this profile contains the runtime deps for sql -->
            <!-- TODO this is incomplete -->
            <dependencies>
 		<dependency>
@@ -182,10 +202,7 @@
 		</dependency>
            </dependencies>
           </profile>
-
-
          </profiles>
-
 
 	<dependencies>
 		<dependency>
