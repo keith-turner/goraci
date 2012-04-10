@@ -69,17 +69,22 @@ goraci against different gora backends by copying the jars you need into lib.
 Before packaging its important to edit gora.properties and set it correctly for
 your datastore.  To run against accumulo do the following.
 
-  vim src/main/resources/gora.properties
+  vim src/main/resources/gora.properties (set Accumulo properties)
   mvn package -Paccumulo-1.4
 
 To run against hbase, do the following.
 
-  vim src/main/resources/gora.properties
+  vim src/main/resources/gora.properties (set HBase properties)
   mvn package -Phbase-0.92
 
-For other backends like cassandra, you will need to copy the appropriate deps
-into lib.  Feel free to update the pom with other profiles and send me pull
-request.
+To run against cassandra, do the following.
+
+  vim src/main/resources/gora.properties (set Cassandra properties)
+  mvn package -Pcassandra-1.0.2
+
+For other datastores mentioned in gora.properties, you will need to copy the
+appropriate deps into lib.  Feel free to update the pom with other profiles and
+send me pull request.
 
 GORA AND HADOOP
 -----------------
@@ -100,7 +105,7 @@ Below is a description of the Java programs
                        counts after running.  REFERENCED and UNREFERENCED are 
                        ok, any UNDEFINED counts are bad. Do not run at the 
                        same time as the Generator.
-  * goraci.Walker    - A standalong program that start following a linked  list 
+  * goraci.Walker    - A standalong program that start following a linked list 
                        and emits timing info.  
   * goraci.Print     - A standalone program that prints nodes in the linked list
   * goraci.Delete    - A standalone program that deletes a single node
