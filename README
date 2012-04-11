@@ -95,13 +95,6 @@ The two libraries  jackson-core and jackson-mapper need to be updated in
 jackson-core-asl-1.4.2.jar and jackson-mapper-asl-1.4.2.jar.  For details see
 HADOOP-6945 [3]. 
 
-GORACI AND HBASE
------------------
-
-The generator needs to be scaled back from 1,000,000 inserts at a time
-to 100,000 or it will hang for some unknown reason.  This can be accomplished
-by modifing a constant in goraci.Generator and rebuilding.
-
 JAVA CLASS DESCRIPTION
 -----------------
 
@@ -166,7 +159,7 @@ You will need to define HBASE_CONF_DIR and HADOOP_CONF_DIR before
 you run your goraci jobs.  For example:
 
   $ export HADOOP_CONF_DIR=/home/you/hadoop-conf
-  $ export HADOOP_CONF_DIR=/home/you/hbase-conf
+  $ export HBASE_CONF_DIR=/home/you/hbase-conf
   $ PATH=/home/you/hadoop-1.0.2/bin:$PATH ./goraci.sh Generator 1000 1000000
 
 CONCLUSIONS

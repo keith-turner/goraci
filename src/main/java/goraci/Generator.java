@@ -213,7 +213,7 @@ public class Generator extends Configured implements Tool {
         node.setClient(id);
         
         store.put(current[i], node);
-        if (count % 1000 == 0) {
+        if (i % 1000 == 0) {
           // Tickle progress every so often else maprunner will think us hung
           output.progress();
         }
