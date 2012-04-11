@@ -86,15 +86,6 @@ For other datastores mentioned in gora.properties, you will need to copy the
 appropriate deps into lib.  Feel free to update the pom with other profiles and
 send me pull request.
 
-GORA AND HADOOP
------------------
-
-Gora uses Avro which uses a Json library that Hadoop has an old version of.
-The two libraries  jackson-core and jackson-mapper need to be updated in
-<HADOOP_HOME>/lib and <HADOOP_HOME>/share/hadoop/lib/.  I updated these to
-jackson-core-asl-1.4.2.jar and jackson-mapper-asl-1.4.2.jar.  For details see
-HADOOP-6945 [3]. 
-
 JAVA CLASS DESCRIPTION
 -----------------
 
@@ -123,13 +114,22 @@ more details can be found here [2]. You can edit the ones in src/main/resources
 and build the goraci-${version}-SNAPSHOT.jar with those. Alternatively remove
 those and put them on the classpath through some other means.
 
+GORA AND HADOOP
+-----------------
+
+Gora uses Avro which uses a Json library that Hadoop has an old version of.
+The two libraries  jackson-core and jackson-mapper need to be updated in
+<HADOOP_HOME>/lib and <HADOOP_HOME>/share/hadoop/lib/.  I updated these to
+jackson-core-asl-1.4.2.jar and jackson-mapper-asl-1.4.2.jar.  For details see
+HADOOP-6945 [3]. 
+
 GORACI AND HBASE
 -----------------
 
-In order to make Goraci ingest quickly into HBase, the gora-hbase
-datastore code must be modified to disable autoflush.  Apply the patch attached
-to https://issues.apache.org/jira/browse/GORA-114 (You may have it already
-as it has been committed to TRUNK).
+In order to make Goraci ingest quickly into HBase, the gora-hbase datastore
+code must be modified to disable autoflush.  Apply the patch attached to
+https://issues.apache.org/jira/browse/GORA-114 (You may have it already as it
+has been committed to TRUNK).
 
 To improve performance running read jobs such as the Verify step, enable
 scanner caching on the command line.  For example:
@@ -138,9 +138,9 @@ scanner caching on the command line.  For example:
          -Dmapred.map.tasks.speculative.execution=false verify_dir 1000
 
 Dependent on how you have your hadoop and hbase deployed, you may need to
-change the gorachi.sh script around some.  Here is one suggestion that may
-help in the case where your hadoop and hbase configuration are other than
-under the hadoop and hbase home directories.
+change the gorachi.sh script around some.  Here is one suggestion that may help
+in the case where your hadoop and hbase configuration are other than under the
+hadoop and hbase home directories.
 
   diff --git a/goraci.sh b/goraci.sh
   index db1562a..31c3c94 100755
@@ -155,8 +155,8 @@ under the hadoop and hbase home directories.
   -
   +CLASSPATH="${HBASE_CONF_DIR}" hadoop --config "${HADOOP_CONF_DIR} jar "$GORACI_HOME/lib/goraci-0.0.1-SNAPSHOT.jar" $CLASS -files "${HBASE_CONF_DIR}/hbase-site.xml" -libjars "$LIBJARS" "$@"
 
-You will need to define HBASE_CONF_DIR and HADOOP_CONF_DIR before
-you run your goraci jobs.  For example:
+You will need to define HBASE_CONF_DIR and HADOOP_CONF_DIR before you run your
+goraci jobs.  For example:
 
   $ export HADOOP_CONF_DIR=/home/you/hadoop-conf
   $ export HBASE_CONF_DIR=/home/you/hbase-conf
