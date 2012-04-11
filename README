@@ -27,7 +27,7 @@ Below is rough sketch of how data is written.  For specific details look at the
 Generator code (src/main/java/goraci/Generator.java)
 
   1 Write out 1 million nodes 
-  2 Flush 
+  2 Flush the client 
   3 Write out 1 million that reference previous million 
   4 If this is the 25th set of 1 million nodes, then update 1st set of million
     to point to last 
@@ -66,8 +66,8 @@ After this you can build goraci.
 
 The maven pom file has some profiles that attempt to make it easier to run
 goraci against different gora backends by copying the jars you need into lib.
-Before packaging its important to edit gora.properties and set it correctly for
-your datastore.  To run against accumulo do the following.
+Before packaging its important to edit gora.properties and set it correctly
+for your datastore.  To run against accumulo do the following.
 
   vim src/main/resources/gora.properties (set Accumulo properties)
   mvn package -Paccumulo-1.4
@@ -129,6 +129,45 @@ mapping file on the classpath, the contents of both are datastore specific,
 more details can be found here [2]. You can edit the ones in src/main/resources
 and build the goraci-${version}-SNAPSHOT.jar with those. Alternatively remove
 those and put them on the classpath through some other means.
+
+GORACI AND HBASE
+-----------------
+
+In order to make Goraci ingest quickly into HBase, the gora-hbase
+datastore code must be modified to disable autoflush.  Apply the patch attached
+to https://issues.apache.org/jira/browse/GORA-114 (You may have it already
+as it has been committed to TRUNK).
+
+To improve performance running read jobs such as the Verify step, enable
+scanner caching on the command line.  For example:
+
+    $ ./gorachi.sh Verify-Dhbase.client.scanner.caching=1000 \
+         -Dmapred.map.tasks.speculative.execution=false verify_dir 1000
+
+Dependent on how you have your hadoop and hbase deployed, you may need to
+change the gorachi.sh script around some.  Here is one suggestion that may
+help in the case where your hadoop and hbase configuration are other than
+under the hadoop and hbase home directories.
+
+  diff --git a/goraci.sh b/goraci.sh
+  index db1562a..31c3c94 100755
+  --- a/goraci.sh
+  +++ b/goraci.sh
+  @@ -95,6 +95,4 @@ done
+   #run it
+   export HADOOP_CLASSPATH="$CLASSPATH"
+   LIBJARS=`echo $HADOOP_CLASSPATH | tr : ,`
+  -hadoop jar "$GORACI_HOME/lib/goraci-0.0.1-SNAPSHOT.jar" $CLASS -libjars "$LIBJARS" "$@"
+  -
+  -
+  +CLASSPATH="${HBASE_CONF_DIR}" hadoop --config "${HADOOP_CONF_DIR} jar "$GORACI_HOME/lib/goraci-0.0.1-SNAPSHOT.jar" $CLASS -files "${HBASE_CONF_DIR}/hbase-site.xml" -libjars "$LIBJARS" "$@"
+
+You will need to define HBASE_CONF_DIR and HADOOP_CONF_DIR before
+you run your goraci jobs.  For example:
+
+  $ export HADOOP_CONF_DIR=/home/you/hadoop-conf
+  $ export HADOOP_CONF_DIR=/home/you/hbase-conf
+  $ PATH=/home/you/hadoop-1.0.2/bin:$PATH ./goraci.sh Generator 1000 1000000
 
 CONCLUSIONS
 ------------
