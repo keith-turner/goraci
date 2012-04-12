@@ -48,6 +48,12 @@ This test suite consists the following
 - a little helper script to run the java programs
 - a maven script to build it.  
 
+When generating data, its best to have each map task generate a multiple of 25
+million.  The reason for this is that circular linked list are generated every
+25M.  Not generating a multiple in 25M will result in some nodes in the linked
+list not having references.  The loss of an unreferenced node can not be
+detected.
+
 BUILDING GORACI
 ---------------
 
@@ -91,7 +97,8 @@ JAVA CLASS DESCRIPTION
 
 Below is a description of the Java programs
 
-  * goraci.Generator - A map only job that generates data.
+  * goraci.Generator - A map only job that generates data.  As stated previously, 
+                       its best to generate data in multiples of 25M.
   * goraci.Verify    - A map reduce job that looks for holes.  Look at the
                        counts after running.  REFERENCED and UNREFERENCED are 
                        ok, any UNDEFINED counts are bad. Do not run at the 
