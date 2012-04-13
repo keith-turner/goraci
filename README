@@ -123,6 +123,16 @@ more details can be found here [2]. You can edit the ones in src/main/resources
 and build the goraci-${version}-SNAPSHOT.jar with those. Alternatively remove
 those and put them on the classpath through some other means.
 
+GORAC over HBase
+----------------
+
+It is important to turn on client scan caching and turn off speculative 
+execution:
+
+OPTS="-Dhbase.client.scanner.caching=1000"
+OPTS="-Dmapred.map.tasks.speculative.execution=false $OPTS"
+./goraci.sh Verify $OPTS output 10
+
 CONCLUSIONS
 ------------
 
@@ -152,21 +162,31 @@ Not all output is shown, just the important parts.
 The map reduce job found the one undefined node and gave the node that
 referenced it.
 
-Below are some timing statistics for running goraci on a 10 node cluster. For
-Accumulo 1 billion nodes were generated and verified.  For HBase 100 million
-nodes were generated and verified.
+Below are some timing statistics for running goraci on a 10 node cluster. 
 
   Store           | Task                   | Time    | Undef  | Unref | Ref        
   ----------------+------------------------+---------+--------+-------+------------
-  accumulo-1.4.0  | Generator 10 100000000 | 35m 22s |    N/A |   N/A |        N/A     
-  accumulo-1.4.0  | Verify /tmp/goraci1 19 |  9m 36s |      0 |     0 | 1000000000  
-  hbase-0.92.1    | Generator 10  10000000 | 17m 53s |    N/A |   N/A |        N/A     
-  hbase-0.92.1    | Verify /tmp/goraci2 40 | 33m 22s |      0 |     0 |  100000000  
+  accumulo-1.4.0  | Generator 10 100000000 | 40m 16s |    N/A |   N/A |        N/A     
+  accumulo-1.4.0  | Verify /tmp/goraci1 19 |  6m  7s |      0 |     0 | 1000000000  
+  hbase-0.92.1    | Generator 10 100000000 |  2h 44m |    N/A |   N/A |        N/A     
+  hbase-0.92.1    | Verify /tmp/goraci2 40 |  6m 34s |      0 |     0 | 1000000000
 
-For the accumulo run, the table was presplit into 8 tablets using the following
-command in the accumulo shell.  This was done before the generator was started.
+For the hbase run, we configured the jvm with "-Xmx4000m", we turned on compression for
+the ci table:
 
-  addsplits -t ci \x10 \x20 \x30 \x40 \x50 \x60 \x70
+create 'ci', {NAME=>'meta', COMPRESSION=>'GZ'}
+
+We also turned down the replication of write-ahead logs to be comparable to Accumulo:
+
+  <property>
+    <name>hbase.regionserver.hlog.replication</name>
+    <value>2</value>
+  </property>
+
+For the accumulo run, we set the split threshold to 512M:
+
+ shell> config -t ci -s table.split.threshold=512M
+
 
 [0] http://accumulo.apache.org
 [1] http://gora.apache.org
