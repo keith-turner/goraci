@@ -168,7 +168,7 @@ public class Generator extends Configured implements Tool {
         for (int i = 0; i < current.length; i++)
           current[i] = Math.abs(rand.nextLong());
         
-        persist(store, count, prev, current, id);
+        persist(output, store, count, prev, current, id);
         
         if (first == null)
           first = current;
@@ -202,7 +202,7 @@ public class Generator extends Configured implements Tool {
       first[first.length - 1] = ez;
     }
     
-    private static void persist(DataStore<Long,CINode> store, long count, long[] prev, long[] current, Utf8 id) throws IOException {
+    private static void persist(Context output, DataStore<Long,CINode> store, long count, long[] prev, long[] current, Utf8 id) throws IOException {
       for (int i = 0; i < current.length; i++) {
         CINode node = store.newPersistent();
         node.setCount(count + i);
@@ -213,6 +213,10 @@ public class Generator extends Configured implements Tool {
         node.setClient(id);
         
         store.put(current[i], node);
+        if (i % 1000 == 0) {
+          // Tickle progress every so often else maprunner will think us hung
+          output.progress();
+        }
       }
       
       store.flush();
@@ -268,6 +272,4 @@ public class Generator extends Configured implements Tool {
     int ret = ToolRunner.run(new Generator(), args);
     System.exit(ret);
   }
-
-  
 }

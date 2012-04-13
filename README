@@ -27,7 +27,7 @@ Below is rough sketch of how data is written.  For specific details look at the
 Generator code (src/main/java/goraci/Generator.java)
 
   1 Write out 1 million nodes 
-  2 Flush 
+  2 Flush the client 
   3 Write out 1 million that reference previous million 
   4 If this is the 25th set of 1 million nodes, then update 1st set of million
     to point to last 
@@ -48,6 +48,12 @@ This test suite consists the following
 - a little helper script to run the java programs
 - a maven script to build it.  
 
+When generating data, its best to have each map task generate a multiple of 25
+million.  The reason for this is that circular linked list are generated every
+25M.  Not generating a multiple in 25M will result in some nodes in the linked
+list not having references.  The loss of an unreferenced node can not be
+detected.
+
 BUILDING GORACI
 ---------------
 
@@ -66,8 +72,8 @@ After this you can build goraci.
 
 The maven pom file has some profiles that attempt to make it easier to run
 goraci against different gora backends by copying the jars you need into lib.
-Before packaging its important to edit gora.properties and set it correctly for
-your datastore.  To run against accumulo do the following.
+Before packaging its important to edit gora.properties and set it correctly
+for your datastore.  To run against accumulo do the following.
 
   vim src/main/resources/gora.properties (set Accumulo properties)
   mvn package -Paccumulo-1.4
@@ -86,6 +92,7 @@ For other datastores mentioned in gora.properties, you will need to copy the
 appropriate deps into lib.  Feel free to update the pom with other profiles and
 send me pull request.
 
+<<<<<<< HEAD
 GORA AND HADOOP
 -----------------
 
@@ -95,12 +102,15 @@ The two libraries  jackson-core and jackson-mapper need to be updated in
 jackson-core-asl-1.4.2.jar and jackson-mapper-asl-1.4.2.jar.  For details see
 HADOOP-6945 [3]. 
 
+=======
+>>>>>>> 4774441726b83507f4dedb3d165bffb6b1a53274
 JAVA CLASS DESCRIPTION
 -----------------
 
 Below is a description of the Java programs
 
-  * goraci.Generator - A map only job that generates data.
+  * goraci.Generator - A map only job that generates data.  As stated previously, 
+                       its best to generate data in multiples of 25M.
   * goraci.Verify    - A map reduce job that looks for holes.  Look at the
                        counts after running.  REFERENCED and UNREFERENCED are 
                        ok, any UNDEFINED counts are bad. Do not run at the 
@@ -123,15 +133,53 @@ more details can be found here [2]. You can edit the ones in src/main/resources
 and build the goraci-${version}-SNAPSHOT.jar with those. Alternatively remove
 those and put them on the classpath through some other means.
 
-GORAC over HBase
-----------------
+GORA AND HADOOP
+-----------------
 
-It is important to turn on client scan caching and turn off speculative 
-execution:
+Gora uses Avro which uses a Json library that Hadoop has an old version of.
+The two libraries  jackson-core and jackson-mapper need to be updated in
+<HADOOP_HOME>/lib and <HADOOP_HOME>/share/hadoop/lib/.  I updated these to
+jackson-core-asl-1.4.2.jar and jackson-mapper-asl-1.4.2.jar.  For details see
+HADOOP-6945 [3]. 
 
-OPTS="-Dhbase.client.scanner.caching=1000"
-OPTS="-Dmapred.map.tasks.speculative.execution=false $OPTS"
-./goraci.sh Verify $OPTS output 10
+GORACI AND HBASE
+-----------------
+
+In order to make Goraci ingest quickly into HBase, the gora-hbase datastore
+code must be modified to disable autoflush.  Apply the patch attached to
+https://issues.apache.org/jira/browse/GORA-114 (You may have it already as it
+has been committed to TRUNK).
+
+To improve performance running read jobs such as the Verify step, enable
+scanner caching on the command line.  For example:
+
+    $ ./gorachi.sh Verify -Dhbase.client.scanner.caching=1000 \
+         -Dmapred.map.tasks.speculative.execution=false verify_dir 1000
+
+Dependent on how you have your hadoop and hbase deployed, you may need to
+change the gorachi.sh script around some.  Here is one suggestion that may help
+in the case where your hadoop and hbase configuration are other than under the
+hadoop and hbase home directories.
+
+  diff --git a/goraci.sh b/goraci.sh
+  index db1562a..31c3c94 100755
+  --- a/goraci.sh
+  +++ b/goraci.sh
+  @@ -95,6 +95,4 @@ done
+   #run it
+   export HADOOP_CLASSPATH="$CLASSPATH"
+   LIBJARS=`echo $HADOOP_CLASSPATH | tr : ,`
+  -hadoop jar "$GORACI_HOME/lib/goraci-0.0.1-SNAPSHOT.jar" $CLASS -libjars "$LIBJARS" "$@"
+  -
+  -
+  +CLASSPATH="${HBASE_CONF_DIR}" hadoop --config "${HADOOP_CONF_DIR} jar "$GORACI_HOME/lib/goraci-0.0.1-SNAPSHOT.jar" $CLASS -files "${HBASE_CONF_DIR}/hbase-site.xml" -libjars "$LIBJARS" "$@"
+
+You will need to define HBASE_CONF_DIR and HADOOP_CONF_DIR before you run your
+goraci jobs.  For example:
+
+  $ export HADOOP_CONF_DIR=/home/you/hadoop-conf
+  $ export HBASE_CONF_DIR=/home/you/hbase-conf
+  $ PATH=/home/you/hadoop-1.0.2/bin:$PATH ./goraci.sh Generator 1000 1000000
 
 CONCLUSIONS
 ------------
@@ -171,8 +219,11 @@ Below are some timing statistics for running goraci on a 10 node cluster.
   hbase-0.92.1    | Generator 10 100000000 |  2h 44m |    N/A |   N/A |        N/A     
   hbase-0.92.1    | Verify /tmp/goraci2 40 |  6m 34s |      0 |     0 | 1000000000
 
-For the hbase run, we configured the jvm with "-Xmx4000m", we turned on compression for
-the ci table:
+Hbase and Accumulo are configured differently out-of-the-box.  We used the Accumulo 
+3G, native configuration examples in the conf/examples directory.
+
+To provide a comparable memory footprint, we increased the HBase jvm to "-Xmx4000m", 
+and turned on compression for the ci table:
 
 create 'ci', {NAME=>'meta', COMPRESSION=>'GZ'}
 
