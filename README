@@ -92,18 +92,6 @@ For other datastores mentioned in gora.properties, you will need to copy the
 appropriate deps into lib.  Feel free to update the pom with other profiles and
 send me pull request.
 
-<<<<<<< HEAD
-GORA AND HADOOP
------------------
-
-Gora uses Avro which uses a Json library that Hadoop has an old version of.
-The two libraries  jackson-core and jackson-mapper need to be updated in
-<HADOOP_HOME>/lib and <HADOOP_HOME>/share/hadoop/lib/.  I updated these to
-jackson-core-asl-1.4.2.jar and jackson-mapper-asl-1.4.2.jar.  For details see
-HADOOP-6945 [3]. 
-
-=======
->>>>>>> 4774441726b83507f4dedb3d165bffb6b1a53274
 JAVA CLASS DESCRIPTION
 -----------------
 
@@ -238,6 +226,9 @@ For the accumulo run, we set the split threshold to 512M:
 
  shell> config -t ci -s table.split.threshold=512M
 
+This was done so that Accumulo would end up with 64 tablets, which is the
+number of regions hbase had.   The number of tablets/regions determines how
+much parallelism there is in the map phase of the verify step.
 
 [0] http://accumulo.apache.org
 [1] http://gora.apache.org
