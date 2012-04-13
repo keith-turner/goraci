@@ -203,7 +203,7 @@ Below are some timing statistics for running goraci on a 10 node cluster.
   Store           | Task                   | Time    | Undef  | Unref | Ref        
   ----------------+------------------------+---------+--------+-------+------------
   accumulo-1.4.0  | Generator 10 100000000 | 40m 16s |    N/A |   N/A |        N/A     
-  accumulo-1.4.0  | Verify /tmp/goraci1 19 |  6m  7s |      0 |     0 | 1000000000  
+  accumulo-1.4.0  | Verify /tmp/goraci1 40 |  6m  7s |      0 |     0 | 1000000000  
   hbase-0.92.1    | Generator 10 100000000 |  2h 44m |    N/A |   N/A |        N/A     
   hbase-0.92.1    | Verify /tmp/goraci2 40 |  6m 34s |      0 |     0 | 1000000000
 
