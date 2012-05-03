@@ -62,6 +62,8 @@ public class Loop extends Configured implements Tool {
     if (!verifySuccess) {
       throw new RuntimeException("Verify.verify failed");
     }
+    
+    LOG.info("Verify finished with succees. Total nodes=" + expectedNumNodes);
   }
 
   @Override
