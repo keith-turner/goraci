@@ -21,6 +21,8 @@ import goraci.generated.CINode;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.query.Query;
 import org.apache.gora.store.DataStore;
@@ -31,6 +33,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.VLongWritable;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -42,7 +46,10 @@ import org.apache.hadoop.util.ToolRunner;
  */
 public class Verify extends Configured implements Tool {
   
+  private static final Log LOG = LogFactory.getLog(Verify.class);
   private static final VLongWritable DEF = new VLongWritable(-1);
+  
+  private Job job;
   
   public static class VerifyMapper extends GoraMapper<Long,CINode,LongWritable,VLongWritable> {
     private LongWritable row = new LongWritable();
@@ -108,7 +115,7 @@ public class Verify extends Configured implements Tool {
       
     }
   }
-
+ 
   @Override
   public int run(String[] args) throws Exception {
     
@@ -117,12 +124,22 @@ public class Verify extends Configured implements Tool {
       return 0;
     }
 
-    DataStore<Long,CINode> store = DataStoreFactory.getDataStore(Long.class, CINode.class, new Configuration());
-
     String outputDir = args[0];
     int numReducers = Integer.parseInt(args[1]);
+
+     return run(outputDir, numReducers);
+  }
+
+  public int run(String outputDir, int numReducers) throws Exception {
+    return run(new Path(outputDir), numReducers);
+  }
+  
+  public int run(Path outputDir, int numReducers) throws Exception {
+    LOG.info("Running Verify with outputDir=" + outputDir +", numReducers=" + numReducers);
     
-    Job job = new Job(getConf());
+    DataStore<Long,CINode> store = DataStoreFactory.getDataStore(Long.class, CINode.class, new Configuration());
+
+    job = new Job(getConf());
     
     if (!job.getConfiguration().get("io.serializations").contains("org.apache.hadoop.io.serializer.JavaSerialization")) {
       job.getConfiguration().set("io.serializations", job.getConfiguration().get("io.serializations") + ",org.apache.hadoop.io.serializer.JavaSerialization");
@@ -141,13 +158,45 @@ public class Verify extends Configured implements Tool {
     
     job.setReducerClass(VerifyReducer.class);
     job.setOutputFormatClass(TextOutputFormat.class);
-    TextOutputFormat.setOutputPath(job, new Path(outputDir));
+    TextOutputFormat.setOutputPath(job, outputDir);
 
     boolean success = job.waitForCompletion(true);
     
     store.close();
     
     return success ? 0 : 1;
+  }
+  
+  public boolean verify(long expectedReferenced) throws Exception {
+    if (job == null) {
+      throw new IllegalStateException("You should call run() first");
+    }
+    
+    Counters counters = job.getCounters();
+    
+    Counter referenced = counters.findCounter(Counts.REFERENCED);
+    Counter unreferenced = counters.findCounter(Counts.UNREFERENCED);
+    Counter undefined = counters.findCounter(Counts.UNDEFINED);
+    
+    boolean success = true;
+    //assert
+    if (expectedReferenced != referenced.getValue()) {
+      LOG.error("Expected referenced count does not match with actual referenced count. " +
+      		"expected referenced=" + expectedReferenced + " ,actual=" + referenced.getValue());
+      success = false;
+    }
+
+    if (unreferenced.getValue() > 0) { 
+      LOG.error("Unreferenced nodes were not expected. Unreferenced count=" + unreferenced.getValue());
+      success = false;
+    }
+    
+    if (undefined.getValue() > 0) { 
+      LOG.error("Found an undefined node. Undefined count=" + undefined.getValue());
+      success = false;
+    }
+    
+    return success;
   }
   
   public static void main(String[] args) throws Exception {

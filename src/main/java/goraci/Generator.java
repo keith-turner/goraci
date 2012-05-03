@@ -27,6 +27,8 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.avro.util.Utf8;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.gora.store.DataStore;
 import org.apache.gora.store.DataStoreFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -49,6 +51,8 @@ import org.apache.hadoop.util.ToolRunner;
  * A Map only job that generates random linked list and stores them using Gora.
  */
 public class Generator extends Configured implements Tool {
+  
+  private static final Log LOG = LogFactory.getLog(Generator.class);
   
   private static final int WIDTH = 1000000;
   private static final int WRAP = WIDTH * 25;
@@ -265,6 +269,11 @@ public class Generator extends Configured implements Tool {
 
     int numMappers = Integer.parseInt(args[0]);
     long numNodes = Long.parseLong(args[1]);
+    return run(numMappers, numNodes);
+  }
+
+  public int run(int numMappers, long numNodes) throws Exception { 
+    LOG.info("Running Generator with numMappers=" + numMappers +", numNodes=" + numNodes);
     
     Job job = new Job(getConf());
     

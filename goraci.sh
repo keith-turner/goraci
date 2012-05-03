@@ -41,6 +41,8 @@ if [ $# = 0 ]; then
   			     in the linked list."
   echo "  Delete         	     A standalone program that deletes a 
   			     single node."
+  echo "  Loop         	             A program to Loop through Generator and
+                             Verify steps"
   echo " or"
   echo "  CLASSNAME                  run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -77,6 +79,8 @@ elif [ "$COMMAND" = "Print" ] ; then
   CLASS=goraci.Print
 elif [ "$COMMAND" = "Delete" ] ; then
   CLASS=goraci.Delete
+elif [ "$COMMAND" = "Loop" ] ; then
+  CLASS=goraci.Loop
 else
   CLASS=$1
   shift
