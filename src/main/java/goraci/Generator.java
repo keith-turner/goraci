@@ -78,10 +78,7 @@ public class Generator extends Configured implements Tool {
         // TODO Auto-generated method stub
         
       }
-      
-
-      
-    }
+   }
     
     static class GeneratorRecordReader extends RecordReader<LongWritable,NullWritable> {
       
@@ -143,6 +140,31 @@ public class Generator extends Configured implements Tool {
     }
     
   }
+
+  /**
+   * Some ASCII art time:
+   * [ . . . ] represents one batch of random longs of length WIDTH
+   *
+   *                _________________________
+   *               |                  ______ |
+   *               |                 |      ||
+   *             __+_________________+_____ ||
+   *             v v                 v     |||
+   * first   = [ . . . . . . . . . . . ]   |||
+   *             ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^     |||
+   *             | | | | | | | | | | |     |||
+   * prev    = [ . . . . . . . . . . . ]   |||
+   *             ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^     |||
+   *             | | | | | | | | | | |     |||
+   * current = [ . . . . . . . . . . . ]   |||
+   *                                       |||
+   * ...                                   |||
+   *                                       |||
+   * last    = [ . . . . . . . . . . . ]   |||
+   *             | | | | | | | | | | |-----|||
+   *             |                 |--------||
+   *             |___________________________|
+   */
 
   static class GeneratorMapper extends Mapper<LongWritable,NullWritable,NullWritable,NullWritable> {
     
@@ -232,12 +254,12 @@ public class Generator extends Configured implements Tool {
       store.flush();
     }
   }
-
+  
+  
   @Override
   public int run(String[] args) throws Exception {
-    
     if (args.length == 0) {
-      System.out.println("Usage : " + Generator.class.getSimpleName() + " <num mappers> <num nodes>");
+      System.out.println("Usage : " + Generator.class.getSimpleName() + " <num mappers> <num nodes per map>");
       return 0;
     }
 
