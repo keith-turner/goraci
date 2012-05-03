@@ -53,8 +53,15 @@ public class Loop extends Configured implements Tool {
     
     Verify verify = new Verify();
     verify.setConf(getConf());
-    verify.run(iterationOutput, numReducers);
-    verify.verify(expectedNumNodes);
+    int retCode = verify.run(iterationOutput, numReducers);
+    if (retCode > 0) {
+      throw new RuntimeException("Verify.run failed with return code: " + retCode);
+    }
+    
+    boolean verifySuccess = verify.verify(expectedNumNodes);
+    if (!verifySuccess) {
+      throw new RuntimeException("Verify.verify failed");
+    }
   }
 
   @Override
