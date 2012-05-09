@@ -5,4 +5,8 @@
     <field name="client" family="meta" qualifier="client"/>
     <field name="count" family="meta" qualifier="count" />
   </class>
+  <class name="goraci.generated.Flushed" keyClass="org.apache.avro.util.Utf8" table="ciFlushed">
+    <field name="count" family="gi" qualifier="count" />
+  </class>
+
 </gora-orm>  

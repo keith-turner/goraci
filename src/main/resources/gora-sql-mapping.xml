@@ -6,6 +6,10 @@
     <field name="client" column=""/>
     <field name="count" column="" jdbc-type="VARCHAR_IGNORECASE" length=""/> <!-- jdbc-type is HSQLDB specific for testing -->
   </class>
+  <class name="goraci.generated.Flushed" keyClass="org.apache.avro.util.Utf8" table="ciFlushed">
+    <primarykey column="" length=""/>
+    <field name="count" column="" jdbc-type="VARCHAR_IGNORECASE" length=""/> <!-- jdbc-type is HSQLDB specific for testing -->
+  </class>
 </gora-orm>
 <!-- N.B. incorrect mapping -->
 

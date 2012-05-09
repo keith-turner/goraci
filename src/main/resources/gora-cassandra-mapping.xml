@@ -5,5 +5,8 @@
     <field name="client" path=""/>
     <field name="count" path=""/>
   </class>
+  <class name="goraci.generated.Flushed" keyClass="org.apache.avro.util.Utf8" keyspace="ciFlushed">
+    <field name="count" path="" />
+  </class>
 </gora-orm>
 <!-- N.B. incorrect mapping -->

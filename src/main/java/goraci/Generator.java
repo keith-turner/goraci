@@ -17,6 +17,7 @@
 package goraci;
 
 import goraci.generated.CINode;
+import goraci.generated.Flushed;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -54,7 +55,7 @@ public class Generator extends Configured implements Tool {
   
   private static final Log LOG = LogFactory.getLog(Generator.class);
   
-  private static final int WIDTH = 1000000;
+  private static final int WIDTH = 100000;
   private static final int WRAP = WIDTH * 25;
 
   static class GeneratorInputFormat extends InputFormat<LongWritable,NullWritable> {
@@ -179,8 +180,11 @@ public class Generator extends Configured implements Tool {
       
       Utf8 id = new Utf8(UUID.randomUUID().toString());
       
-      DataStore<Long,CINode> store = DataStoreFactory.getDataStore(Long.class, CINode.class, new Configuration());
+      Configuration conf = new Configuration();
+      DataStore<Long,CINode> store = DataStoreFactory.getDataStore(Long.class, CINode.class, conf);
+      DataStore<Utf8,Flushed> flushedTable = DataStoreFactory.getDataStore(Utf8.class, Flushed.class, conf);
       
+      flushedTable.createSchema();
       store.createSchema();
       
       Random rand = new Random();
@@ -211,6 +215,12 @@ public class Generator extends Configured implements Tool {
           
           updatePrev(store, first, prev);
           
+          // keep track of whats flushed in another table, verify can use this info to run concurrently
+          Flushed flushed = flushedTable.newPersistent();
+          flushed.setCount(count);
+          flushedTable.put(id, flushed);
+          flushedTable.flush();
+
           first = null;
           prev = null;
         }
@@ -218,6 +228,7 @@ public class Generator extends Configured implements Tool {
       }
       
       store.close();
+      flushedTable.close();
       
     }
     

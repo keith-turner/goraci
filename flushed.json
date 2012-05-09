@@ -1,0 +1,8 @@
+{
+  "type": "record",
+  "name": "Flushed",
+  "namespace": "goraci.generated",
+  "fields" : [
+    {"name": "count", "type": "long"}
+  ]
+}
