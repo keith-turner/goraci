@@ -146,11 +146,6 @@
 		   <version>3.4.3</version>
 		   <scope>runtime</scope>
 		</dependency>
-		<dependency>
-		   <groupId>org.apache.hadoop</groupId>
-		   <artifactId>hadoop-core</artifactId>
-		   <version>1.0.1</version>
-		</dependency>
            </dependencies>
           </profile>
           
@@ -182,11 +177,6 @@
                    <version>1.0-1</version>
                    <scope>runtime</scope>
                 </dependency>
-                <dependency>
-		   <groupId>org.apache.hadoop</groupId>
-		   <artifactId>hadoop-core</artifactId>
-		   <version>1.0.1</version>
-		</dependency>
            </dependencies>
 
           </profile>
@@ -210,6 +200,12 @@
 			<groupId>org.apache.gora</groupId>
 			<artifactId>gora-core</artifactId>
 			<version>${gora.version}</version>
+		</dependency>
+
+		<dependency>
+		   <groupId>org.apache.hadoop</groupId>
+		   <artifactId>hadoop-core</artifactId>
+		   <version>1.0.1</version>
 		</dependency>
 
 		<dependency>
