@@ -8,10 +8,10 @@ BACKGROUND
 ------------
 
 Apache Accumulo [0] has a simple test suite that verifies that data is not lost
-at scale.  This test suite is called continuous ingest.  This test runs many
-ingest clients that continually create linked lists containing 25 million
+at scale.  This test suite is called continuous ingest [5].  This test runs
+many ingest clients that continually create linked lists containing 25 million
 nodes. At some point the clients are stopped and a map reduce job is run to
-ensure no linked list has a hole. A hole indicates data was lost.  
+ensure no linked list has a hole. A hole indicates data was lost.    
 
 The nodes in the linked list are random.  This causes each linked list to
 spread across the table.  Therefore if one part of a table loses data, then it
@@ -134,11 +134,6 @@ HADOOP-6945 [3].
 GORACI AND HBASE
 -----------------
 
-In order to make Goraci ingest quickly into HBase, the gora-hbase datastore
-code must be modified to disable autoflush.  Apply the patch attached to
-https://issues.apache.org/jira/browse/GORA-114 (You may have it already as it
-has been committed to TRUNK).
-
 To improve performance running read jobs such as the Verify step, enable
 scanner caching on the command line.  For example:
 
@@ -231,7 +226,12 @@ This was done so that Accumulo would end up with 64 tablets, which is the
 number of regions hbase had.   The number of tablets/regions determines how
 much parallelism there is in the map phase of the verify step.
 
+Sometimes when this test suite is run against HBase data is lost.  This issue
+is being tracked under HBASE-5754 [4].
+
 [0] http://accumulo.apache.org
 [1] http://gora.apache.org
 [2] http://gora.apache.org/docs/current/gora-conf.html
 [3] https://issues.apache.org/jira/browse/HADOOP-6945
+[4] https://issues.apache.org/jira/browse/HBASE-5754
+[5] http://svn.apache.org/viewvc/accumulo/tags/1.4.0/test/system/continuous/ScaleTest.odp?view=co
