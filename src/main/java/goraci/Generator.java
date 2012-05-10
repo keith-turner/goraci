@@ -55,7 +55,7 @@ public class Generator extends Configured implements Tool {
   
   private static final Log LOG = LogFactory.getLog(Generator.class);
   
-  private static final int WIDTH = 100000;
+  private static final int WIDTH = 1000000;
   private static final int WRAP = WIDTH * 25;
 
   static class GeneratorInputFormat extends InputFormat<LongWritable,NullWritable> {
