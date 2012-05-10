@@ -165,6 +165,25 @@ goraci jobs.  For example:
   $ export HBASE_CONF_DIR=/home/you/hbase-conf
   $ PATH=/home/you/hadoop-1.0.2/bin:$PATH ./goraci.sh Generator 1000 1000000
 
+CONCURRENCY
+------------
+
+Its possible to run verification at the same time as generation.  To do this
+supply the -c option to Generator and Verify.  This will cause Genertor to
+create a secondary table which holds information about what verification can
+safely verify.  Running Verify with the -c option will make it run slower
+because more information must be brought back to the client side for filtering
+purposes.  The Loop program also supports the -c option, which will cause it to
+run verification concurrently with generation.
+
+If verification is run at the same time as generation without the -c option,
+then it will inevitably fail.  This is because verification mappers read
+different parts of the table at different times and giving an inconsistent view
+of the table.  So one mapper may read a part of a table before a node is
+written, when the node is later referenced it will appear to be missing.  The
+-c option basically filters out newer information using data written to the
+secondary table.
+
 CONCLUSIONS
 ------------
 

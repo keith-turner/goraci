@@ -28,6 +28,11 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.avro.util.Utf8;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.gora.store.DataStore;
@@ -55,8 +60,8 @@ public class Generator extends Configured implements Tool {
   
   private static final Log LOG = LogFactory.getLog(Generator.class);
   
-  private static final int WIDTH = 1000000;
-  private static final int WRAP = WIDTH * 25;
+  static final int WIDTH = 1000000;
+  static final int WRAP = WIDTH * 25;
 
   static class GeneratorInputFormat extends InputFormat<LongWritable,NullWritable> {
     
@@ -173,6 +178,14 @@ public class Generator extends Configured implements Tool {
 
   static class GeneratorMapper extends Mapper<LongWritable,NullWritable,NullWritable,NullWritable> {
     
+    private boolean concurrent;
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+      super.setup(context);
+      concurrent = context.getConfiguration().getBoolean("goraci.generator.concurrent", false);
+    }
+    
     @Override
     protected void map(LongWritable key, NullWritable value, Context output) throws IOException {
       long num = key.get();
@@ -182,9 +195,13 @@ public class Generator extends Configured implements Tool {
       
       Configuration conf = new Configuration();
       DataStore<Long,CINode> store = DataStoreFactory.getDataStore(Long.class, CINode.class, conf);
-      DataStore<Utf8,Flushed> flushedTable = DataStoreFactory.getDataStore(Utf8.class, Flushed.class, conf);
+      DataStore<Utf8,Flushed> flushedTable = null;
       
-      flushedTable.createSchema();
+      if (concurrent) {
+        flushedTable = DataStoreFactory.getDataStore(Utf8.class, Flushed.class, conf);
+        flushedTable.createSchema();
+      }
+      
       store.createSchema();
       
       Random rand = new Random();
@@ -215,11 +232,13 @@ public class Generator extends Configured implements Tool {
           
           updatePrev(store, first, prev);
           
+          if (concurrent) {
           // keep track of whats flushed in another table, verify can use this info to run concurrently
-          Flushed flushed = flushedTable.newPersistent();
-          flushed.setCount(count);
-          flushedTable.put(id, flushed);
-          flushedTable.flush();
+            Flushed flushed = flushedTable.newPersistent();
+            flushed.setCount(count);
+            flushedTable.put(id, flushed);
+            flushedTable.flush();
+          }
 
           first = null;
           prev = null;
@@ -228,7 +247,8 @@ public class Generator extends Configured implements Tool {
       }
       
       store.close();
-      flushedTable.close();
+      if (concurrent)
+        flushedTable.close();
       
     }
     
@@ -273,17 +293,30 @@ public class Generator extends Configured implements Tool {
   
   @Override
   public int run(String[] args) throws Exception {
-    if (args.length == 0) {
-      System.out.println("Usage : " + Generator.class.getSimpleName() + " <num mappers> <num nodes per map>");
-      return 0;
+    Options options = new Options();
+    options.addOption("c", "concurrent", false, "update secondary table with information that allows verification to run concurrently");
+    
+    GnuParser parser = new GnuParser();
+    CommandLine cmd = null;
+    try {
+      cmd = parser.parse(options, args);
+      if (cmd.getArgs().length != 2) {
+        throw new ParseException("Did not see expected # of arguments, saw " + cmd.getArgs().length);
+      }
+    } catch (ParseException e) {
+      System.err.println("Failed to parse command line " + e.getMessage());
+      System.err.println();
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp(getClass().getSimpleName() + " <num mappers> <num nodes per map>", options);
+      System.exit(-1);
     }
 
-    int numMappers = Integer.parseInt(args[0]);
-    long numNodes = Long.parseLong(args[1]);
-    return run(numMappers, numNodes);
+    int numMappers = Integer.parseInt(cmd.getArgs()[0]);
+    long numNodes = Long.parseLong(cmd.getArgs()[1]);
+    return run(numMappers, numNodes, cmd.hasOption("c"));
   }
 
-  public int run(int numMappers, long numNodes) throws Exception { 
+  public int run(int numMappers, long numNodes, boolean concurrent) throws Exception {
     LOG.info("Running Generator with numMappers=" + numMappers +", numNodes=" + numNodes);
     
     Job job = new Job(getConf());
@@ -298,6 +331,7 @@ public class Generator extends Configured implements Tool {
     
     job.getConfiguration().setInt("goraci.generator.mappers", numMappers);
     job.getConfiguration().setLong("goraci.generator.nodes", numNodes);
+    job.getConfiguration().setBoolean("goraci.generator.concurrent", concurrent);
     
     job.setMapperClass(GeneratorMapper.class);
     

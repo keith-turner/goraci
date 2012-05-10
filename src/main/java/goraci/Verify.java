@@ -37,6 +37,7 @@ import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
 import org.apache.gora.store.DataStore;
 import org.apache.gora.store.DataStoreFactory;
+import org.apache.gora.util.GoraException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -183,6 +184,14 @@ public class Verify extends Configured implements Tool {
   }
   
   public int run(Path outputDir, int numReducers, boolean concurrent) throws Exception {
+    start(outputDir, numReducers, concurrent);
+    
+    boolean success = job.waitForCompletion(true);
+    
+    return success ? 0 : 1;
+  }
+  
+  public void start(Path outputDir, int numReducers, boolean concurrent) throws GoraException, IOException, Exception {
     LOG.info("Running Verify with outputDir=" + outputDir +", numReducers=" + numReducers);
     
     DataStore<Long,CINode> store = DataStoreFactory.getDataStore(Long.class, CINode.class, new Configuration());
@@ -213,13 +222,23 @@ public class Verify extends Configured implements Tool {
     job.setOutputFormatClass(TextOutputFormat.class);
     TextOutputFormat.setOutputPath(job, outputDir);
 
-    boolean success = job.waitForCompletion(true);
-    
     store.close();
     
-    return success ? 0 : 1;
+    job.submit();
   }
   
+  public boolean isComplete() throws IOException {
+    return job.isComplete();
+  }
+
+  public boolean isSuccessful() throws IOException {
+    return job.isSuccessful();
+  }
+  
+  public boolean waitForCompletion() throws IOException, InterruptedException, ClassNotFoundException {
+    return job.waitForCompletion(true);
+  }
+
   private void readFlushed(Configuration conf) throws Exception {
     DataStore<Utf8,Flushed> flushedTable = DataStoreFactory.getDataStore(Utf8.class, Flushed.class, conf);
     
