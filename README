@@ -86,7 +86,7 @@ To run against hbase, do the following.
 To run against cassandra, do the following.
 
   vim src/main/resources/gora.properties (set Cassandra properties)
-  mvn package -Pcassandra-1.0.2
+  mvn package -Pcassandra-1.1.2
 
 For other datastores mentioned in gora.properties, you will need to copy the
 appropriate deps into lib.  Feel free to update the pom with other profiles and
