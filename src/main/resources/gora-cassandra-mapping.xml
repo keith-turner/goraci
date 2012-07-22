@@ -6,19 +6,19 @@
      <family name="sc" type="super" />
   </keyspace>
 
-  <keyspace name="CIFlushed" host="localhost" cluster="GoraCI Test Cluster">
+  <keyspace name="Flushed" host="localhost" cluster="GoraCI Test Cluster">
     <family name="p"/>
     <family name="f"/>
     <family name="sc" type="super"/>
   </keyspace>
   
   <class name="goraci.generated.CINode" keyClass="java.lang.Long" keyspace="CINode">
-    <field name="prev" family="" qualifier=""/>
-    <field name="client" family="" qualifier=""/>
-    <field name="count" family="" qualifier=""/>
+    <field name="prev" family="p" qualifier="prev"/>
+    <field name="client" family="p" qualifier="client"/>
+    <field name="count" family="p" qualifier="count"/>
   </class>
-  <class name="goraci.generated.Flushed" keyClass="org.apache.avro.util.Utf8" keyspace="CIFlushed">
-    <field name="count" family="" qualifier="" />
+  <class name="goraci.generated.Flushed" keyClass="org.apache.avro.util.Utf8" keyspace="Flushed">
+    <field name="count" family="f" qualifier="count" />
   </class>
 </gora-orm>
 <!-- Incorrect Mapping -->
