@@ -4,9 +4,10 @@
 = @author Keith Turner		=
 =================================
 
-GoraCI has now been integrated into [Apache Gora](http://gora.apache.org) master branch
-where current development is ongoing. If you would like to learn more about GoraCI
-please see the [Gora documentation](http://gora.apache.org/current/index.html#goraci-integration-testsing-suite).
+GoraCI has now been integrated into [Apache Gora][http://gora.apache.org]
+master branch where current development is ongoing. If you would like to learn
+more about GoraCI please see the [Gora
+documentation][http://gora.apache.org/current/index.html#goraci-integration-testsing-suite].
 
 BACKGROUND
 ------------
